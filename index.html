@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة المحيبس - النسخة الصافية</title>
+    <title>لعبة المحيبس - نسخة open001</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -44,7 +44,6 @@
 
         .hotspot { position: absolute; cursor: pointer; z-index: 150; }
         
-        /* أزرار الواجهات */
         .start-btn { bottom: 8%; left: 35%; width: 30%; height: 15%; }
         .tak-btn { bottom: 10%; left: 8%; width: 35%; height: 15%; }
         .jeeb-btn { bottom: 10%; right: 8%; width: 35%; height: 15%; }
@@ -58,7 +57,7 @@
             z-index: 250; cursor: pointer;
         }
 
-        /* --- تنسيق اليد (بدون مربع أسود) --- */
+        /* --- تنسيق اليد المفتوحة --- */
         .hand-target {
             position: absolute;
             width: 8.8%; 
@@ -67,19 +66,17 @@
             cursor: pointer;
             z-index: 120;
             background: transparent;
-            border: none;
         }
 
         .open-view {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('open1.jpg');
-            /* نستخدم 1000% لعرض يد واحدة فقط من الشريط */
-            background-size: 1000% 100%; 
+            background-image: url('open001.jpg'); /* تم تغيير الاسم هنا */
+            background-size: 100% 100%; 
             background-repeat: no-repeat;
             display: none;
             z-index: 121;
-            /* السحر البرمجي: حذف الخلفية السوداء لليد */
+            /* خاصية دمج الألوان لإخفاء حدود المربع الأسود */
             mix-blend-mode: screen; 
         }
 
@@ -164,7 +161,7 @@
             
             ringPos = Math.floor(Math.random() * 10);
             isOver = false; takTries = 8;
-            updateStatus(gameMode === 'tak' ? "استبعد الفارغات" : "اطلب البات");
+            updateStatus(gameMode === 'tak' ? "وضع الطك: استبعد الفارغات" : "وضع الجيب: اطلب البات");
 
             coords.forEach((p, i) => {
                 const hand = document.createElement('div');
@@ -173,8 +170,6 @@
                 
                 const open = document.createElement('div');
                 open.className = 'open-view';
-                // إزاحة الشريط لعرض اليد الصحيحة لكل رقم
-                open.style.backgroundPosition = `${i * 11.11}% 0%`;
                 
                 const overlay = document.createElement('div');
                 overlay.className = 'emoji-overlay';
@@ -187,14 +182,14 @@
                     open.style.display = 'block';
 
                     if (gameMode === 'jeeb') {
-                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بات! 🎉"); }
-                        else { overlay.innerText = '❌'; updateStatus("طاح! 😢"); }
+                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بات! بطل 🎉"); }
+                        else { overlay.innerText = '❌'; updateStatus("خسرت! طاح 😢"); }
                         endGame();
                     } else {
                         if (i === ringPos) { overlay.innerText = '💍'; updateStatus("خسرت! طكيت البات 😢"); endGame(); }
                         else {
                             takTries--;
-                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت ثنين! اطلب"); }
+                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت بس ثنين! هسه اطلب"); }
                             else { updateStatus(`باقي ${takTries} طكات`); }
                         }
                     }
@@ -204,6 +199,7 @@
         }
 
         function updateStatus(m) { document.getElementById('statusText').innerText = m; }
+        
         function endGame() { 
             isOver = true; 
             const views = document.querySelectorAll('.open-view');
