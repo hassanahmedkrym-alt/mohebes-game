@@ -68,18 +68,18 @@
 
         .hand-container {
             position: absolute;
-            width: 15%; /* حجم اليد تقريباً */
+            width: 15%; 
             height: 25%;
             cursor: pointer;
             z-index: 5;
-            background: rgba(255, 255, 255, 0.05); /* إطار خفيف جداً لرؤية المنطقة */
+            background: rgba(255, 255, 255, 0.05); 
         }
 
         .hand-open-view {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('open.jpg'); /* تأكد من الاسم والامتداد */
-            background-size: 500% 200%; /* توزيع الصورة المفتوحة */
+            background-image: url('open.jpg'); /* تم التأكيد على الامتداد jpg */
+            background-size: 500% 200%; 
             display: none;
             z-index: 6;
         }
@@ -127,7 +127,7 @@
 
     <div id="startScreen" class="fullscreen-container">
         <div class="image-content">
-            <img src="start.png" onerror="this.src='https://via.placeholder.com/800x600?text=Start+Image+Not+Found'">
+            <img src="start.jpg" onerror="this.src='https://via.placeholder.com/800x600?text=Start+Image+Not+Found'">
             <div class="hotspot start-btn" onclick="showChoice()"></div>
         </div>
     </div>
@@ -149,7 +149,7 @@
 
         <div class="game-wrapper" id="gameArea">
             <img src="close.jpg" id="bgClose" onerror="this.alt='خطأ: لم يتم العثور على صورة close.jpg'">
-            </div>
+        </div>
 
         <button class="restart-btn" onclick="location.reload()">العودة للقائمة</button>
     </div>
@@ -160,7 +160,6 @@
         let gameMode = 'tak';
         let remainingTak = 8;
 
-        // إحداثيات الأيادي (ضبطتها لتناسب صفين)
         const coords = [
             {t: '25%', l: '10%'}, {t: '25%', l: '28%'}, {t: '25%', l: '46%'}, {t: '25%', l: '64%'}, {t: '25%', l: '82%'},
             {t: '55%', l: '10%'}, {t: '55%', l: '28%'}, {t: '55%', l: '46%'}, {t: '55%', l: '64%'}, {t: '55%', l: '82%'}
@@ -190,7 +189,6 @@
                 
                 const openView = document.createElement('div');
                 openView.className = 'hand-open-view';
-                // حساب مكان اليد في الصورة المفتوحة
                 openView.style.backgroundPosition = `${(i % 5) * 25}% ${(i < 5 ? 0 : 100)}%`;
                 
                 const overlay = document.createElement('div');
@@ -224,7 +222,7 @@
                     revealAll();
                 } else {
                     remainingTak--;
-                    if (remainingTak <= 2) { // تحويل للجيب عند بقاء 2
+                    if (remainingTak <= 2) { 
                         gameMode = 'jeeb';
                         msg("بقت بس ثنين! هسه اطلب الجيب", "#f1c40f");
                     } else {
