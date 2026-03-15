@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة المحيبس - النسخة الاحترافية</title>
+    <title>لعبة المحيبس - ضبط المحاذاة</title>
     <style>
         * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', sans-serif;
-            text-align: center;
             background-color: #000;
             color: white;
-            padding: 0; margin: 0;
+            margin: 0; padding: 0;
             overflow: hidden;
             height: 100vh; width: 100vw;
         }
@@ -21,6 +20,8 @@
             top: 0; left: 0;
             width: 100vw; height: 100vh;
             display: none;
+            justify-content: center;
+            align-items: center;
             z-index: 100;
         }
 
@@ -39,42 +40,37 @@
 
         .hotspot { position: absolute; cursor: pointer; z-index: 150; }
         
-        /* زر ابدأ */
+        /* أزرار الواجهات */
         .start-btn { bottom: 8%; left: 35%; width: 30%; height: 15%; }
-        
-        /* أزرار اختيار الوضع */
         .tak-btn { bottom: 10%; left: 10%; width: 35%; height: 15%; }
         .jeeb-btn { bottom: 10%; right: 10%; width: 35%; height: 15%; }
-
-        /* زر إعادة المحاولة (الوسط) */
         .retry-btn { bottom: 5%; left: 32%; width: 36%; height: 10%; }
 
-        /* زر واجهة الاختيار (أعلى اليمين) */
+        /* زر العودة */
         .choice-back-btn {
-            top: 20px; right: 20px;
-            padding: 10px 20px;
-            background: linear-gradient(to bottom, #d35400, #a04000);
+            position: absolute; top: 20px; right: 20px;
+            padding: 10px 20px; background: #e67e22;
             color: white; border: 2px solid #f1c40f;
             border-radius: 10px; font-weight: bold;
             z-index: 250; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        /* تنسيق الأيادي - السطر العرضي */
+        /* --- أهم جزء: تنسيق الأيادي --- */
         .hand-target {
             position: absolute;
-            width: 8.5%; height: 21%;
-            top: 45.2%; /* هذا الارتفاع يطابق مكان الأيادي في صورتك بالضبط */
+            width: 8.4%; /* عرض اليد الواحدة تقريباً */
+            height: 20%; /* طول منطقة اليد */
+            top: 45.5%;  /* الارتفاع عن أعلى الشاشة */
             cursor: pointer;
             z-index: 120;
-            /* background: rgba(255,0,0,0.2); /* فعل هذا السطر إذا أردت رؤية المربعات الحمراء للضبط */
+            /* background: rgba(255, 0, 0, 0.3); /* افصل هذا السطر لرؤية المربعات وضبطها */
         }
 
         .open-view {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('open.jpg');
-            background-size: 1176% 100%; /* السر هنا: تكبير الصورة لتناسب القطع الـ 10 */
+            background-size: 1190% 100%; /* تكبير الصورة لتغطية الـ 10 أيادي */
             background-repeat: no-repeat;
             display: none;
             z-index: 121;
@@ -84,7 +80,7 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 2.5rem;
+            font-size: 2rem;
             z-index: 130;
             pointer-events: none;
         }
@@ -96,17 +92,14 @@
 
         .status-badge {
             background: rgba(0,0,0,0.85);
-            padding: 10px 30px;
-            border-radius: 50px;
-            border: 2px solid #f1c40f;
-            display: inline-block;
-            font-size: 1.3rem;
+            padding: 8px 25px; border-radius: 50px;
+            border: 2px solid #f1c40f; display: inline-block;
         }
     </style>
 </head>
 <body>
 
-    <div id="backChoiceBtn" class="hotspot choice-back-btn" style="display:none;" onclick="returnToChoice()">واجهة الاختيار</div>
+    <div id="backChoiceBtn" class="choice-back-btn" style="display:none;" onclick="returnToChoice()">واجهة الاختيار</div>
 
     <div id="startScreen" class="screen">
         <div class="img-container">
@@ -134,30 +127,22 @@
     <script>
         let ringPos = 0, isOver = false, gameMode = 'tak', takTries = 8;
         
-        // إحداثيات دقيقة للأيادي بالترتيب العرضي (من 1 إلى 10)
+        // إحداثيات مدروسة لـ 10 أيادي بالعرض
         const coords = [
-            {l: '4.2%'}, {l: '13.6%'}, {l: '23%'}, {l: '32.5%'}, {l: '42%'},
-            {l: '51.4%'}, {l: '60.8%'}, {l: '70.3%'}, {l: '79.7%'}, {l: '89.1%'}
+            {l: '4.5%'}, {l: '13.8%'}, {l: '23.2%'}, {l: '32.6%'}, {l: '42%'},
+            {l: '51.4%'}, {l: '60.8%'}, {l: '70.2%'}, {l: '79.6%'}, {l: '89%'}
         ];
 
-        function goToChoice() {
-            hideAll();
-            document.getElementById('chooseScreen').style.display = 'flex';
-        }
+        function goToChoice() { hideAll(); document.getElementById('chooseScreen').style.display = 'flex'; }
 
         function startGame(m) {
-            gameMode = m;
-            hideAll();
+            gameMode = m; hideAll();
             document.getElementById('gameScreen').style.display = 'flex';
             document.getElementById('backChoiceBtn').style.display = 'block';
             resetCurrentLevel();
         }
 
-        function returnToChoice() {
-            hideAll();
-            document.getElementById('chooseScreen').style.display = 'flex';
-            document.getElementById('backChoiceBtn').style.display = 'none';
-        }
+        function returnToChoice() { hideAll(); document.getElementById('chooseScreen').style.display = 'flex'; document.getElementById('backChoiceBtn').style.display = 'none'; }
 
         function hideAll() {
             document.getElementById('startScreen').style.display = 'none';
@@ -168,11 +153,9 @@
         function resetCurrentLevel() {
             const area = document.getElementById('gameArea');
             area.querySelectorAll('.hand-target').forEach(el => el.remove());
-            
             ringPos = Math.floor(Math.random() * 10);
-            isOver = false;
-            takTries = 8;
-            updateStatus(gameMode === 'tak' ? "وضع الطك: باقي 8 محاولات" : "وضع الجيب: وين المحيبس؟");
+            isOver = false; takTries = 8;
+            updateStatus(gameMode === 'tak' ? "وضع الطك: باقي 8" : "وضع الجيب: وين المحيبس؟");
 
             coords.forEach((p, i) => {
                 const hand = document.createElement('div');
@@ -181,7 +164,7 @@
                 
                 const open = document.createElement('div');
                 open.className = 'open-view';
-                // ضبط خلفية اليد المفتوحة لتطابق مكانها في الصورة
+                // استخدام الـ background-position كـ Sprite Sheet
                 open.style.backgroundPosition = `${i * 11.1}% 0%`;
                 
                 const overlay = document.createElement('div');
@@ -193,17 +176,16 @@
                 hand.onclick = () => {
                     if (isOver || open.style.display === 'block') return;
                     open.style.display = 'block';
-
                     if (gameMode === 'jeeb') {
-                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بات! لقيت المحيبس 🎉"); }
-                        else { overlay.innerText = '❌'; updateStatus("خسرت! طاح المحيبس 😢"); }
+                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بات! 🎉"); }
+                        else { overlay.innerText = '❌'; updateStatus("خسرت! 😢"); }
                         endGame();
                     } else {
                         if (i === ringPos) { overlay.innerText = '💍'; updateStatus("خسرت! طكيت المحيبس 😢"); endGame(); }
                         else {
                             takTries--;
-                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت إيدين! هسه جيب البات"); }
-                            else { updateStatus(`فارغة! باقي ${takTries} طكات`); }
+                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت إيدين! هسه اطلب"); }
+                            else { updateStatus(`باقي ${takTries} طكات`); }
                         }
                     }
                 };
@@ -212,7 +194,6 @@
         }
 
         function updateStatus(m) { document.getElementById('statusText').innerText = m; }
-        
         function endGame() { 
             isOver = true; 
             const views = document.querySelectorAll('.open-view');
