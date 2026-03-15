@@ -33,7 +33,7 @@
 
         .img-container img {
             width: 100%; height: 100%;
-            object-fit: fill;
+            object-fit: fill; /* تملأ الشاشة بالكامل */
             display: block;
         }
 
@@ -42,37 +42,40 @@
         /* زر ابدأ */
         .start-btn { bottom: 8%; left: 35%; width: 30%; height: 15%; }
         
-        /* أزرار الاختيار */
+        /* أزرار اختيار الوضع */
         .tak-btn { bottom: 10%; left: 10%; width: 35%; height: 15%; }
         .jeeb-btn { bottom: 10%; right: 10%; width: 35%; height: 15%; }
 
         /* زر إعادة المحاولة (الوسط) */
         .retry-btn { bottom: 5%; left: 32%; width: 36%; height: 10%; }
 
-        /* زر العودة للرئيسية (أعلى اليمين) */
-        .home-btn {
+        /* زر واجهة الاختيار (أعلى اليمين) */
+        .choice-back-btn {
             top: 20px; right: 20px;
             padding: 10px 20px;
-            background: rgba(230, 126, 34, 0.9);
+            background: linear-gradient(to bottom, #d35400, #a04000);
             color: white; border: 2px solid #f1c40f;
             border-radius: 10px; font-weight: bold;
             z-index: 250; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
         /* تنسيق الأيادي - السطر العرضي */
         .hand-target {
             position: absolute;
-            width: 8.5%; height: 22%;
-            top: 44.5%; /* تعديل الارتفاع ليطابق مستوى الأيادي بالصورة */
+            width: 8.5%; height: 21%;
+            top: 45.2%; /* هذا الارتفاع يطابق مكان الأيادي في صورتك بالضبط */
             cursor: pointer;
             z-index: 120;
+            /* background: rgba(255,0,0,0.2); /* فعل هذا السطر إذا أردت رؤية المربعات الحمراء للضبط */
         }
 
         .open-view {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('open.jpg');
-            background-size: 1100% 100%; /* ضبط حجم الخلفية لتناسب اليد الواحدة */
+            background-size: 1176% 100%; /* السر هنا: تكبير الصورة لتناسب القطع الـ 10 */
+            background-repeat: no-repeat;
             display: none;
             z-index: 121;
         }
@@ -98,13 +101,12 @@
             border: 2px solid #f1c40f;
             display: inline-block;
             font-size: 1.3rem;
-            box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
         }
     </style>
 </head>
 <body>
 
-    <div id="globalHomeBtn" class="hotspot home-btn" style="display:none;" onclick="goHome()">الرئيسية</div>
+    <div id="backChoiceBtn" class="hotspot choice-back-btn" style="display:none;" onclick="returnToChoice()">واجهة الاختيار</div>
 
     <div id="startScreen" class="screen">
         <div class="img-container">
@@ -122,40 +124,39 @@
     </div>
 
     <div id="gameScreen" class="screen">
-        <div class="info-bar"><div class="status-badge" id="statusText">جاهز؟</div></div>
+        <div class="info-bar"><div class="status-badge" id="statusText">تحضّر..</div></div>
         <div class="img-container" id="gameArea">
             <img src="close.jpg">
-            <div class="hotspot retry-btn" onclick="initGame()"></div>
+            <div class="hotspot retry-btn" onclick="resetCurrentLevel()"></div>
         </div>
     </div>
 
     <script>
         let ringPos = 0, isOver = false, gameMode = 'tak', takTries = 8;
         
-        // إحداثيات دقيقة للأيادي بالترتيب العرضي
+        // إحداثيات دقيقة للأيادي بالترتيب العرضي (من 1 إلى 10)
         const coords = [
-            {l: '4%'}, {l: '13.5%'}, {l: '23%'}, {l: '32.5%'}, {l: '42%'},
-            {l: '51.5%'}, {l: '61%'}, {l: '70.5%'}, {l: '80%'}, {l: '89.5%'}
+            {l: '4.2%'}, {l: '13.6%'}, {l: '23%'}, {l: '32.5%'}, {l: '42%'},
+            {l: '51.4%'}, {l: '60.8%'}, {l: '70.3%'}, {l: '79.7%'}, {l: '89.1%'}
         ];
 
         function goToChoice() {
             hideAll();
             document.getElementById('chooseScreen').style.display = 'flex';
-            document.getElementById('globalHomeBtn').style.display = 'block';
         }
 
         function startGame(m) {
             gameMode = m;
             hideAll();
             document.getElementById('gameScreen').style.display = 'flex';
-            document.getElementById('globalHomeBtn').style.display = 'block';
-            initGame();
+            document.getElementById('backChoiceBtn').style.display = 'block';
+            resetCurrentLevel();
         }
 
-        function goHome() {
+        function returnToChoice() {
             hideAll();
-            document.getElementById('startScreen').style.display = 'flex';
-            document.getElementById('globalHomeBtn').style.display = 'none';
+            document.getElementById('chooseScreen').style.display = 'flex';
+            document.getElementById('backChoiceBtn').style.display = 'none';
         }
 
         function hideAll() {
@@ -164,9 +165,8 @@
             document.getElementById('gameScreen').style.display = 'none';
         }
 
-        function initGame() {
+        function resetCurrentLevel() {
             const area = document.getElementById('gameArea');
-            // تنظيف الأيادي السابقة
             area.querySelectorAll('.hand-target').forEach(el => el.remove());
             
             ringPos = Math.floor(Math.random() * 10);
@@ -181,8 +181,8 @@
                 
                 const open = document.createElement('div');
                 open.className = 'open-view';
-                // حساب الـ background position بدقة (100 / 9 = 11.11)
-                open.style.backgroundPosition = `${i * 11.11}% 0%`;
+                // ضبط خلفية اليد المفتوحة لتطابق مكانها في الصورة
+                open.style.backgroundPosition = `${i * 11.1}% 0%`;
                 
                 const overlay = document.createElement('div');
                 overlay.className = 'emoji-overlay';
@@ -203,7 +203,7 @@
                         else {
                             takTries--;
                             if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت إيدين! هسه جيب البات"); }
-                            else { updateStatus(`باقي ${takTries} طكات`); }
+                            else { updateStatus(`فارغة! باقي ${takTries} طكات`); }
                         }
                     }
                 };
