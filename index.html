@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة المحيبس - اليد الصافية</title>
+    <title>لعبة المحيبس - اليد الواقعية</title>
     <style>
         * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', sans-serif;
             background-color: #000;
-            color: white;
             margin: 0; padding: 0;
             overflow: hidden;
             height: 100vh; width: 100vw;
@@ -43,8 +42,6 @@
         }
 
         .hotspot { position: absolute; cursor: pointer; z-index: 150; }
-        
-        /* أزرار الواجهات */
         .start-btn { bottom: 8%; left: 35%; width: 30%; height: 15%; }
         .tak-btn { bottom: 10%; left: 8%; width: 35%; height: 15%; }
         .jeeb-btn { bottom: 10%; right: 8%; width: 35%; height: 15%; }
@@ -58,27 +55,29 @@
             z-index: 250; cursor: pointer;
         }
 
-        /* --- تنسيق اليد الصافية (التعديل الأساسي) --- */
+        /* --- تنسيق اليد (الإصلاح الجذري) --- */
         .hand-target {
             position: absolute;
-            width: 8.8%; 
-            height: 22%; 
-            top: 45.5%;  
+            width: 8.5%; 
+            height: 21%; 
+            top: 45.2%;  
             cursor: pointer;
             z-index: 120;
             overflow: hidden;
-            background: transparent; /* جعل المربع الأصلي شفافاً تماماً */
-            mix-blend-mode: screen; /* لدمج اليد بشكل أفضل مع الإضاءة الخلفية */
+            background: transparent;
         }
 
         .open-view {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('open1.jpg');
+            /* السر 1: نرجع الـ 1100% حتى تطلع يد وحدة مو 10 */
             background-size: 1100% 100%; 
             background-repeat: no-repeat;
             display: none;
             z-index: 121;
+            /* السر 2: دمج الألوان لإخفاء حدود المربع الأسود */
+            mix-blend-mode: lighten; 
         }
 
         .emoji-overlay {
@@ -162,7 +161,7 @@
             
             ringPos = Math.floor(Math.random() * 10);
             isOver = false; takTries = 8;
-            updateStatus(gameMode === 'tak' ? "وضع الطك: استبعد الفارغات" : "وضع الجيب: اطلب البات");
+            updateStatus(gameMode === 'tak' ? "استبعد الأيادي الفارغة" : "اطلب البات");
 
             coords.forEach((p, i) => {
                 const hand = document.createElement('div');
@@ -171,6 +170,8 @@
                 
                 const open = document.createElement('div');
                 open.className = 'open-view';
+                
+                // السر 3: نرجع نحرك الصورة حتى تطلع الإيد المناسبة لكل رقم
                 open.style.backgroundPosition = `${i * 11.11}% 0%`;
                 
                 const overlay = document.createElement('div');
@@ -184,14 +185,14 @@
                     open.style.display = 'block';
 
                     if (gameMode === 'jeeb') {
-                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بات! بطل 🎉"); }
-                        else { overlay.innerText = '❌'; updateStatus("خسرت! طاح 😢"); }
+                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بات! 🎉"); }
+                        else { overlay.innerText = '❌'; updateStatus("طاح! 😢"); }
                         endGame();
                     } else {
-                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("خسرت! طكيت البات 😢"); endGame(); }
+                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("طكيت المحيبس! 😢"); endGame(); }
                         else {
                             takTries--;
-                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت بس ثنين! هسه اطلب"); }
+                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت ثنين! اطلب"); }
                             else { updateStatus(`باقي ${takTries} طكات`); }
                         }
                     }
@@ -201,7 +202,6 @@
         }
 
         function updateStatus(m) { document.getElementById('statusText').innerText = m; }
-        
         function endGame() { 
             isOver = true; 
             const views = document.querySelectorAll('.open-view');
