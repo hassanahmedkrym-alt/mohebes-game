@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة المحيبس - النسخة الصافية</title>
+    <title>لعبة المحيبس - اليد الصافية</title>
     <style>
         * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', sans-serif;
             background-color: #000;
+            color: white;
             margin: 0; padding: 0;
             overflow: hidden;
             height: 100vh; width: 100vw;
@@ -57,7 +58,7 @@
             z-index: 250; cursor: pointer;
         }
 
-        /* --- تنسيق منطقة اليد (بدون أي أضلاع أو ألوان) --- */
+        /* --- تنسيق اليد الصافية (التعديل الأساسي) --- */
         .hand-target {
             position: absolute;
             width: 8.8%; 
@@ -65,16 +66,16 @@
             top: 45.5%;  
             cursor: pointer;
             z-index: 120;
-            background: transparent; /* تأكيد أن الخلفية شفافة */
-            border: none;             /* تأكيد عدم وجود أضلاع */
-            outline: none;            /* إزالة إطار التركيز */
+            overflow: hidden;
+            background: transparent; /* جعل المربع الأصلي شفافاً تماماً */
+            mix-blend-mode: screen; /* لدمج اليد بشكل أفضل مع الإضاءة الخلفية */
         }
 
         .open-view {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('open1.jpg');
-            background-size: 100% 100%; 
+            background-size: 1100% 100%; 
             background-repeat: no-repeat;
             display: none;
             z-index: 121;
@@ -170,6 +171,7 @@
                 
                 const open = document.createElement('div');
                 open.className = 'open-view';
+                open.style.backgroundPosition = `${i * 11.11}% 0%`;
                 
                 const overlay = document.createElement('div');
                 overlay.className = 'emoji-overlay';
