@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة المحيبس - اليد الواقعية</title>
+    <title>لعبة المحيبس - النسخة الصافية</title>
     <style>
         * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', sans-serif;
             background-color: #000;
+            color: white;
             margin: 0; padding: 0;
             overflow: hidden;
             height: 100vh; width: 100vw;
@@ -57,28 +58,28 @@
             z-index: 250; cursor: pointer;
         }
 
-        /* --- تنسيق اليد (بدون مربع ظاهري) --- */
+        /* --- تنسيق اليد (بدون مربع أسود) --- */
         .hand-target {
             position: absolute;
             width: 8.8%; 
             height: 22%; 
-            top: 45.2%;  
+            top: 45.5%;  
             cursor: pointer;
             z-index: 120;
-            overflow: hidden; /* لقص اليد المطلوبة فقط */
             background: transparent;
+            border: none;
         }
 
         .open-view {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('open1.jpg');
-            /* السر: تكبير الشريط 10 مرات ليظهر يد واحدة فقط */
+            /* نستخدم 1000% لعرض يد واحدة فقط من الشريط */
             background-size: 1000% 100%; 
             background-repeat: no-repeat;
             display: none;
             z-index: 121;
-            /* السحر البرمجي: يدمج اليد مع خلفية الغرفة ويخفي السواد */
+            /* السحر البرمجي: حذف الخلفية السوداء لليد */
             mix-blend-mode: screen; 
         }
 
@@ -130,7 +131,6 @@
     <script>
         let ringPos = 0, isOver = false, gameMode = 'tak', takTries = 8;
         
-        // إحداثيات مدروسة لـ 10 أيادي
         const coords = [
             {l: '4%'}, {l: '13.3%'}, {l: '22.8%'}, {l: '32.2%'}, {l: '41.6%'},
             {l: '51.3%'}, {l: '60.7%'}, {l: '70.2%'}, {l: '79.6%'}, {l: '89%'}
@@ -164,7 +164,7 @@
             
             ringPos = Math.floor(Math.random() * 10);
             isOver = false; takTries = 8;
-            updateStatus(gameMode === 'tak' ? "استبعد الأيادي الفارغة" : "اطلب البات");
+            updateStatus(gameMode === 'tak' ? "استبعد الفارغات" : "اطلب البات");
 
             coords.forEach((p, i) => {
                 const hand = document.createElement('div');
@@ -173,7 +173,7 @@
                 
                 const open = document.createElement('div');
                 open.className = 'open-view';
-                // حساب دقيق للقص: 100% تقسيم 9 فواصل = 11.11%
+                // إزاحة الشريط لعرض اليد الصحيحة لكل رقم
                 open.style.backgroundPosition = `${i * 11.11}% 0%`;
                 
                 const overlay = document.createElement('div');
@@ -188,10 +188,10 @@
 
                     if (gameMode === 'jeeb') {
                         if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بات! 🎉"); }
-                        else { overlay.innerText = '❌'; updateStatus("خسرت! 😢"); }
+                        else { overlay.innerText = '❌'; updateStatus("طاح! 😢"); }
                         endGame();
                     } else {
-                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("خسرت! 😢"); endGame(); }
+                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("خسرت! طكيت البات 😢"); endGame(); }
                         else {
                             takTries--;
                             if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت ثنين! اطلب"); }
