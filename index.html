@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة المحيبس - النسخة المطورة</title>
+    <title>لعبة المحيبس - ضبط المربعات</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -13,6 +13,7 @@
             margin: 0; padding: 0;
             overflow: hidden;
             height: 100vh; width: 100vw;
+            display: flex; justify-content: center; align-items: center;
         }
 
         .screen {
@@ -27,50 +28,53 @@
 
         #startScreen { display: flex; }
 
+        /* حاوية اللعب: تأخذ حجم الصورة وتتمركز */
         .img-container {
             position: relative;
-            width: 100%; height: 100%;
+            display: inline-block; /* تأخذ حجم محتواها */
+            max-width: 100%;
+            max-height: 100%;
         }
 
         .img-container img {
-            width: 100%; height: 100%;
-            object-fit: fill; /* تملأ الشاشة بالكامل لتطابق الإحداثيات */
+            max-width: 100vw;
+            max-height: 100vh;
             display: block;
+            object-fit: contain;
         }
 
         .hotspot { position: absolute; cursor: pointer; z-index: 150; }
         
-        /* أزرار الواجهات */
+        /* أزرار الواجهات (بالنسبة المئوية للحاوية) */
         .start-btn { bottom: 8%; left: 35%; width: 30%; height: 15%; }
-        .tak-btn { bottom: 10%; left: 10%; width: 35%; height: 15%; }
-        .jeeb-btn { bottom: 10%; right: 10%; width: 35%; height: 15%; }
+        .tak-btn { bottom: 10%; left: 8%; width: 35%; height: 15%; }
+        .jeeb-btn { bottom: 10%; right: 8%; width: 35%; height: 15%; }
         .retry-btn { bottom: 5%; left: 32%; width: 36%; height: 10%; }
 
-        /* زر العودة لواجهة الاختيار */
         .choice-back-btn {
-            position: absolute; top: 20px; right: 20px;
-            padding: 12px 24px; background: #e67e22;
+            position: absolute; top: 15px; right: 15px;
+            padding: 10px 20px; background: #e67e22;
             color: white; border: 2px solid #f1c40f;
-            border-radius: 12px; font-weight: bold;
+            border-radius: 10px; font-weight: bold;
             z-index: 250; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        /* --- تنسيق الأيادي --- */
+        /* --- تنسيق الأيادي (الضبط الذهبي) --- */
         .hand-target {
             position: absolute;
-            width: 8.5%; 
-            height: 22%; 
-            top: 45%;  
+            width: 8.8%; /* عرض المربع فوق اليد */
+            height: 22%; /* طول المربع فوق اليد */
+            top: 45.5%;  /* ارتفاع السطر عن أعلى الصورة */
             cursor: pointer;
             z-index: 120;
+            /* background: rgba(255, 0, 0, 0.3); /* امسح هذا التعليق إذا تريد تشوف المربعات وتعدل مكانها */
         }
 
         .open-view {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('open1.jpg'); /* تم تعديل الاسم هنا */
-            background-size: 1100% 100%; /* تقسيم 10 أيادي */
+            background-image: url('open1.jpg');
+            background-size: 1136% 100%; /* تقسيم 10 أيادي مع فواصل */
             background-repeat: no-repeat;
             display: none;
             z-index: 121;
@@ -85,16 +89,12 @@
             pointer-events: none;
         }
 
-        .info-bar {
-            position: absolute; top: 15px; width: 100%;
-            z-index: 200; pointer-events: none;
-        }
-
         .status-badge {
+            position: absolute; top: 10px; left: 50%;
+            transform: translateX(-50%);
             background: rgba(0,0,0,0.8);
-            padding: 10px 30px; border-radius: 50px;
-            border: 2px solid #f1c40f; display: inline-block;
-            font-size: 1.3rem;
+            padding: 8px 25px; border-radius: 50px;
+            border: 2px solid #f1c40f; z-index: 200;
         }
     </style>
 </head>
@@ -118,7 +118,7 @@
     </div>
 
     <div id="gameScreen" class="screen">
-        <div class="info-bar"><div class="status-badge" id="statusText">جاهز؟</div></div>
+        <div class="status-badge" id="statusText">جاهز؟</div>
         <div class="img-container" id="gameArea">
             <img src="close.jpg">
             <div class="hotspot retry-btn" onclick="initLevel()"></div>
@@ -128,21 +128,19 @@
     <script>
         let ringPos = 0, isOver = false, gameMode = 'tak', takTries = 8;
         
-        // إحداثيات الأيادي بالعرض (من 1 إلى 10)
+        // إحداثيات مدروسة للأيادي (ضبطتها لتقعد فوق الأيادي بصورة close.jpg)
         const coords = [
-            {l: '4%'}, {l: '13.5%'}, {l: '23%'}, {l: '32.5%'}, {l: '42%'},
-            {l: '51.5%'}, {l: '61%'}, {l: '70.5%'}, {l: '80%'}, {l: '89.5%'}
+            {l: '4%'}, {l: '13.3%'}, {l: '22.8%'}, {l: '32.2%'}, {l: '41.6%'},
+            {l: '51.3%'}, {l: '60.7%'}, {l: '70.2%'}, {l: '79.6%'}, {l: '89%'}
         ];
 
         function showChoiceScreen() {
             hideAll();
             document.getElementById('chooseScreen').style.display = 'flex';
-            document.getElementById('btnBackToChoice').style.display = 'none';
         }
 
         function startGame(m) {
-            gameMode = m; 
-            hideAll();
+            gameMode = m; hideAll();
             document.getElementById('gameScreen').style.display = 'flex';
             document.getElementById('btnBackToChoice').style.display = 'block';
             initLevel();
@@ -155,20 +153,16 @@
         }
 
         function hideAll() {
-            document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('chooseScreen').style.display = 'none';
-            document.getElementById('gameScreen').style.display = 'none';
+            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
         }
 
         function initLevel() {
             const area = document.getElementById('gameArea');
-            // تنظيف الأيادي السابقة
             area.querySelectorAll('.hand-target').forEach(el => el.remove());
             
             ringPos = Math.floor(Math.random() * 10);
-            isOver = false;
-            takTries = 8;
-            updateStatus(gameMode === 'tak' ? "وضع الطك: استبعد الأيادي الفارغة" : "وضع الجيب: وين المحيبس؟");
+            isOver = false; takTries = 8;
+            updateStatus(gameMode === 'tak' ? "وضع الطك: استبعد الفارغات" : "وضع الجيب: اطلب البات");
 
             coords.forEach((p, i) => {
                 const hand = document.createElement('div');
@@ -177,7 +171,7 @@
                 
                 const open = document.createElement('div');
                 open.className = 'open-view';
-                // ضبط خلفية اليد المفتوحة لتناسب كل يد بالمليمتر
+                // حساب دقيق جداً لمكان اليد المفتوحة من open1.jpg
                 open.style.backgroundPosition = `${i * 11.11}% 0%`;
                 
                 const overlay = document.createElement('div');
@@ -192,18 +186,14 @@
 
                     if (gameMode === 'jeeb') {
                         if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بات! بطل 🎉"); }
-                        else { overlay.innerText = '❌'; updateStatus("خسرت! طاح المحيبس 😢"); }
+                        else { overlay.innerText = '❌'; updateStatus("خسرت! طاح 😢"); }
                         endGame();
                     } else {
-                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("خسرت! طكيت المحيبس 😢"); endGame(); }
+                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("خسرت! طكيت البات 😢"); endGame(); }
                         else {
                             takTries--;
-                            if (takTries === 0) { 
-                                gameMode = 'jeeb'; 
-                                updateStatus("بقت إيدين! اطلب المحيبس"); 
-                            } else { 
-                                updateStatus(`باقي ${takTries} طكات`); 
-                            }
+                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت بس ثنين! هسه اطلب"); }
+                            else { updateStatus(`باقي ${takTries} طكات`); }
                         }
                     }
                 };
