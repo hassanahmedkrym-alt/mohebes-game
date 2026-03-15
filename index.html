@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة المحيبس - توزيع الأيادي</title>
+    <title>لعبة المحيبس - عرض كامل للصورة</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -58,23 +58,23 @@
             z-index: 250; cursor: pointer;
         }
 
-        /* --- تنسيق المربعات وتكرار صورة open1 --- */
+        /* --- تنسيق المربعات وعرض الصورة كاملة --- */
         .hand-target {
             position: absolute;
-            width: 8.8%; /* عرض المربع */
-            height: 22%; /* طول المربع */
-            top: 45.5%;  /* مستوى الأيادي في الصورة */
+            width: 8.8%; 
+            height: 22%; 
+            top: 45.5%;  
             cursor: pointer;
             z-index: 120;
-            overflow: hidden; /* لإخفاء باقي أجزاء الصورة الكبيرة */
+            overflow: hidden;
         }
 
         .open-view {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('open1.jpg');
-            /* السر هنا: تكبير الصورة لـ 11 ضعفاً لتغطية الـ 10 أيادي مع الفراغات */
-            background-size: 1130% 100%; 
+            /* تعديل: الصورة تظهر كاملة داخل المربع الواحد */
+            background-size: 100% 100%; 
             background-repeat: no-repeat;
             display: none;
             z-index: 121;
@@ -128,7 +128,6 @@
     <script>
         let ringPos = 0, isOver = false, gameMode = 'tak', takTries = 8;
         
-        // إحداثيات مدروسة لتقعد المربعات فوق الأيادي بالضبط
         const coords = [
             {l: '4%'}, {l: '13.3%'}, {l: '22.8%'}, {l: '32.2%'}, {l: '41.6%'},
             {l: '51.3%'}, {l: '60.7%'}, {l: '70.2%'}, {l: '79.6%'}, {l: '89%'}
@@ -162,7 +161,7 @@
             
             ringPos = Math.floor(Math.random() * 10);
             isOver = false; takTries = 8;
-            updateStatus(gameMode === 'tak' ? "وضع الطك: استبعد الأيادي" : "وضع الجيب: اطلب البات");
+            updateStatus(gameMode === 'tak' ? "وضع الطك: استبعد الفارغات" : "وضع الجيب: اطلب البات");
 
             coords.forEach((p, i) => {
                 const hand = document.createElement('div');
@@ -172,9 +171,7 @@
                 const open = document.createElement('div');
                 open.className = 'open-view';
                 
-                // هنا يتم تكرار وتوزيع الصورة:
-                // كل يد تأخذ إزاحة مختلفة (Offset) لتظهر الجزء المناسب من open1.jpg
-                open.style.backgroundPosition = `${i * 11.11}% 0%`;
+                // تم إزالة تعديل backgroundPosition لعرض الصورة كاملة
                 
                 const overlay = document.createElement('div');
                 overlay.className = 'emoji-overlay';
@@ -194,7 +191,7 @@
                         if (i === ringPos) { overlay.innerText = '💍'; updateStatus("خسرت! طكيت البات 😢"); endGame(); }
                         else {
                             takTries--;
-                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت بس ثنين! اطلب"); }
+                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت بس ثنين! هسه اطلب"); }
                             else { updateStatus(`باقي ${takTries} طكات`); }
                         }
                     }
