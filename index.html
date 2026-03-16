@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة المحيبس - نسخة PNG</title>
+    <title>لعبة المحيبس - نسخة الإخفاء الذكي</title>
     <style>
         * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', sans-serif;
             background-color: #000;
-            color: white;
             margin: 0; padding: 0;
             overflow: hidden;
             height: 100vh; width: 100vw;
@@ -43,7 +42,6 @@
         }
 
         .hotspot { position: absolute; cursor: pointer; z-index: 150; }
-        
         .start-btn { bottom: 8%; left: 35%; width: 30%; height: 15%; }
         .tak-btn { bottom: 10%; left: 8%; width: 35%; height: 15%; }
         .jeeb-btn { bottom: 10%; right: 8%; width: 35%; height: 15%; }
@@ -57,7 +55,7 @@
             z-index: 250; cursor: pointer;
         }
 
-        /* --- تنسيق اليد المفتوحة --- */
+        /* --- تنسيق اليد المفتوحة ورقعة الإخفاء --- */
         .hand-target {
             position: absolute;
             width: 8.8%; 
@@ -71,13 +69,19 @@
         .open-view {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('open001.png'); /* تم تغيير الامتداد إلى png */
+            background-image: url('open001.png');
             background-size: 100% 100%; 
             background-repeat: no-repeat;
             display: none;
             z-index: 121;
-            /* أبقيت هذه الخاصية تحسباً إذا كانت الصورة غير مفرغة تماماً */
-            mix-blend-mode: screen; 
+            
+            /* السحر هنا: لون خلفية يطابق أرضية الغرفة ليغطي اليد المغلقة */
+            /* إذا كان اللون فاتحاً جداً أو غامقاً، غير الكود أدناه (اللون السداسي) */
+            background-color: #120e0a; 
+            
+            /* تمويه الحواف لكي تندمج الرقعة مع الصورة الأصلية */
+            box-shadow: 0 0 15px 5px #120e0a;
+            border-radius: 10px;
         }
 
         .emoji-overlay {
@@ -102,80 +106,35 @@
 
     <div id="btnBackToChoice" class="choice-back-btn" style="display:none;" onclick="goBackToChoice()">واجهة الاختيار</div>
 
-    <div id="startScreen" class="screen">
-        <div class="img-container">
-            <img src="start.jpg">
-            <div class="hotspot start-btn" onclick="showChoiceScreen()"></div>
-        </div>
-    </div>
-
-    <div id="chooseScreen" class="screen">
-        <div class="img-container">
-            <img src="choose.jpg">
-            <div class="hotspot tak-btn" onclick="startGame('tak')"></div>
-            <div class="hotspot jeeb-btn" onclick="startGame('jeeb')"></div>
-        </div>
-    </div>
-
-    <div id="gameScreen" class="screen">
-        <div class="status-badge" id="statusText">جاهز؟</div>
-        <div class="img-container" id="gameArea">
-            <img src="close.jpg">
-            <div class="hotspot retry-btn" onclick="initLevel()"></div>
-        </div>
-    </div>
+    <div id="startScreen" class="screen"><div class="img-container"><img src="start.jpg"><div class="hotspot start-btn" onclick="showChoiceScreen()"></div></div></div>
+    <div id="chooseScreen" class="screen"><div class="img-container"><img src="choose.jpg"><div class="hotspot tak-btn" onclick="startGame('tak')"></div><div class="hotspot jeeb-btn" onclick="startGame('jeeb')"></div></div></div>
+    <div id="gameScreen" class="screen"><div class="status-badge" id="statusText">جاهز؟</div><div class="img-container" id="gameArea"><img src="close.jpg"><div class="hotspot retry-btn" onclick="initLevel()"></div></div></div>
 
     <script>
         let ringPos = 0, isOver = false, gameMode = 'tak', takTries = 8;
-        
-        const coords = [
-            {l: '4%'}, {l: '13.3%'}, {l: '22.8%'}, {l: '32.2%'}, {l: '41.6%'},
-            {l: '51.3%'}, {l: '60.7%'}, {l: '70.2%'}, {l: '79.6%'}, {l: '89%'}
-        ];
+        const coords = [{l:'4%'}, {l:'13.3%'}, {l:'22.8%'}, {l:'32.2%'}, {l:'41.6%'}, {l:'51.3%'}, {l:'60.7%'}, {l:'70.2%'}, {l:'79.6%'}, {l:'89%'}];
 
-        function showChoiceScreen() {
-            hideAll();
-            document.getElementById('chooseScreen').style.display = 'flex';
-        }
-
-        function startGame(m) {
-            gameMode = m; hideAll();
-            document.getElementById('gameScreen').style.display = 'flex';
-            document.getElementById('btnBackToChoice').style.display = 'block';
-            initLevel();
-        }
-
-        function goBackToChoice() {
-            hideAll();
-            document.getElementById('chooseScreen').style.display = 'flex';
-            document.getElementById('btnBackToChoice').style.display = 'none';
-        }
-
-        function hideAll() {
-            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-        }
+        function showChoiceScreen() { hideAll(); document.getElementById('chooseScreen').style.display = 'flex'; }
+        function startGame(m) { gameMode = m; hideAll(); document.getElementById('gameScreen').style.display = 'flex'; document.getElementById('btnBackToChoice').style.display = 'block'; initLevel(); }
+        function goBackToChoice() { hideAll(); document.getElementById('chooseScreen').style.display = 'flex'; document.getElementById('btnBackToChoice').style.display = 'none'; }
+        function hideAll() { document.querySelectorAll('.screen').forEach(s => s.style.display = 'none'); }
 
         function initLevel() {
             const area = document.getElementById('gameArea');
             area.querySelectorAll('.hand-target').forEach(el => el.remove());
-            
             ringPos = Math.floor(Math.random() * 10);
             isOver = false; takTries = 8;
-            updateStatus(gameMode === 'tak' ? "وضع الطك: استبعد الفارغات" : "وضع الجيب: اطلب البات");
+            updateStatus(gameMode === 'tak' ? "استبعد الأيادي الفارغة" : "وين المحيبس؟ اطلب");
 
             coords.forEach((p, i) => {
                 const hand = document.createElement('div');
                 hand.className = 'hand-target';
                 hand.style.left = p.l;
-                
                 const open = document.createElement('div');
                 open.className = 'open-view';
-                
                 const overlay = document.createElement('div');
                 overlay.className = 'emoji-overlay';
-
-                hand.appendChild(open);
-                hand.appendChild(overlay);
+                hand.appendChild(open); hand.appendChild(overlay);
 
                 hand.onclick = () => {
                     if (isOver || open.style.display === 'block') return;
@@ -183,13 +142,13 @@
 
                     if (gameMode === 'jeeb') {
                         if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بات! بطل 🎉"); }
-                        else { overlay.innerText = '❌'; updateStatus("خسرت! طاح 😢"); }
+                        else { overlay.innerText = '❌'; updateStatus("خسرت! طاح المحيبس 😢"); }
                         endGame();
                     } else {
                         if (i === ringPos) { overlay.innerText = '💍'; updateStatus("خسرت! طكيت البات 😢"); endGame(); }
                         else {
                             takTries--;
-                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت بس ثنين! هسه اطلب"); }
+                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت ثنين! هسه اطلب"); }
                             else { updateStatus(`باقي ${takTries} طكات`); }
                         }
                     }
@@ -199,14 +158,7 @@
         }
 
         function updateStatus(m) { document.getElementById('statusText').innerText = m; }
-        
-        function endGame() { 
-            isOver = true; 
-            const views = document.querySelectorAll('.open-view');
-            const overlays = document.querySelectorAll('.emoji-overlay');
-            views[ringPos].style.display = 'block';
-            overlays[ringPos].innerText = '💍';
-        }
+        function endGame() { isOver = true; const views = document.querySelectorAll('.open-view'); const overlays = document.querySelectorAll('.emoji-overlay'); views[ringPos].style.display = 'block'; overlays[ringPos].innerText = '💍'; }
     </script>
 </body>
 </html>
