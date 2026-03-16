@@ -1,4 +1,4 @@
-const cacheName = 'mohebes-v1';
+const cacheName = 'mohebes-v2';
 const assets = [
   './',
   './index.html',
