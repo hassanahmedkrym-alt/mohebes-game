@@ -10,39 +10,39 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
 
-    <title>لعبة المحيبس - ملء الشاشة</title>
+    <title>لعبة المحيبس - النسخة النهائية</title>
     <style>
-        /* إلغاء الفراغات نهائياً */
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        
-        @viewport { viewport-fit: cover; }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background-color: #000;
+        /* إعدادات تصفير الشاشة */
+        html, body {
             margin: 0; padding: 0;
+            width: 100%; height: 100%;
             overflow: hidden;
-            /* استخدام وحدات القياس الديناميكية لملء الشاشة */
-            width: 100dvw; height: 100dvh;
-            display: flex; justify-content: center; align-items: center;
+            background-color: #000;
+            touch-action: none; /* منع الزووم اللمسي */
         }
 
-        /* تدوير الشاشة في وضع البورتريه لملء الشاشة بالعرض */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        /* الحاوية الرئيسية مثبتة تماماً على أبعاد الشاشة */
+        #mainWrapper {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100dvw; 
+            height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+        }
+
+        /* تدوير ذكي لملء الشاشة في وضع العمود (Portrait) */
         @media screen and (orientation: portrait) {
             #mainWrapper {
                 transform: rotate(90deg);
-                transform-origin: center;
+                transform-origin: center center;
                 width: 100dvh !important;
                 height: 100dvw !important;
-                position: absolute;
-                top: 0; left: 0;
             }
-        }
-
-        #mainWrapper {
-            width: 100%; height: 100%;
-            position: relative;
-            background: #000;
         }
 
         .screen {
@@ -60,22 +60,23 @@
         .img-container {
             position: relative;
             width: 100%; height: 100%;
+            display: block;
         }
 
         .img-container img {
-            width: 100%; height: 100%;
-            /* التمدد الكامل للصورة لتغطية الشاشة */
-            object-fit: fill; 
-            display: block;
+            width: 100% !important;
+            height: 100% !important;
+            /* التعديل الأهم: fill تجبر الصورة على مط نفسها لملء كل الفراغات */
+            object-fit: fill !important; 
             position: absolute;
             top: 0; left: 0;
         }
 
-        /* أزرار التنقل مع مراعاة المناطق الآمنة */
+        /* الأزرار العلوية مع مراعاة حواف النوتش */
         .nav-menu {
             position: absolute;
             top: env(safe-area-inset-top, 15px);
-            left: 15px;
+            left: env(safe-area-inset-left, 15px);
             display: flex; gap: 10px;
             z-index: 250;
         }
@@ -89,7 +90,6 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        /* إحداثيات الأيادي */
         .hand-target {
             position: absolute;
             width: 8.8%; height: 22%;
@@ -175,10 +175,7 @@
 
     <script>
         let ringPos = 0, isOver = false, gameMode = 'tak', takTries = 8;
-        const coords = [
-            {l:'2.5%'}, {l:'11.8%'}, {l:'21.2%'}, {l:'30.6%'}, {l:'40%'}, 
-            {l:'51.3%'}, {l:'60.7%'}, {l:'70.2%'}, {l:'79.6%'}, {l:'89%'}
-        ];
+        const coords = [{l:'2.5%'}, {l:'11.8%'}, {l:'21.2%'}, {l:'30.6%'}, {l:'40%'}, {l:'51.3%'}, {l:'60.7%'}, {l:'70.2%'}, {l:'79.6%'}, {l:'89%'}];
 
         function playSfx(id) {
             const sound = document.getElementById(id);
@@ -201,7 +198,7 @@
             area.querySelectorAll('.hand-target').forEach(el => el.remove());
             ringPos = Math.floor(Math.random() * 10);
             isOver = false; takTries = 8;
-            updateStatus(gameMode === 'tak' ? "نمط الطك: استبعد 8" : "نمط الجيب: وين المحيبس؟");
+            updateStatus(gameMode === 'tak' ? "نمط الطك: استبعد 8" : "نمط الجيب: اطلب البات");
 
             coords.forEach((p, i) => {
                 const hand = document.createElement('div');
@@ -216,25 +213,16 @@
                 hand.onclick = () => {
                     if (isOver || open.style.display === 'block') return;
                     open.style.display = 'block';
-
                     if (gameMode === 'jeeb') {
-                        if (i === ringPos) { 
-                            overlay.innerText = '💍'; updateStatus("بطل! فزت 🎉"); playSfx('soundWinApplause'); 
-                        } else { 
-                            overlay.innerText = '❌'; updateStatus("بات خسرت! 😢"); playSfx('soundFailBreak'); 
-                        }
+                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بطل! فزت 🎉"); playSfx('soundWinApplause'); }
+                        else { overlay.innerText = '❌'; updateStatus("بات خسرت! 😢"); playSfx('soundFailBreak'); }
                         endGame();
                     } else {
-                        if (i === ringPos) { 
-                            overlay.innerText = '💍'; updateStatus("خسرت! طكيت المحيبس 😢"); playSfx('soundFailBreak'); 
-                            endGame(); 
-                        } else {
+                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("خسرت! طكيت المحيبس 😢"); playSfx('soundFailBreak'); endGame(); }
+                        else {
                             takTries--;
-                            if (takTries === 0) { 
-                                gameMode = 'jeeb'; updateStatus("بقت ثنين! جيب البات جيبة"); playSfx('soundJibBat'); 
-                            } else { 
-                                updateStatus(`باقي ${takTries} طكات`); playSfx('soundTakSuccess'); 
-                            }
+                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت ثنين! جيب البات جيبة"); playSfx('soundJibBat'); }
+                            else { updateStatus(`باقي ${takTries} طكات`); playSfx('soundTakSuccess'); }
                         }
                     }
                 };
@@ -243,17 +231,21 @@
         }
 
         function updateStatus(m) { document.getElementById('statusText').innerText = m; }
-        function endGame() { 
-            isOver = true; 
-            const views = document.querySelectorAll('.open-view'); 
-            const overlays = document.querySelectorAll('.emoji-overlay'); 
-            views[ringPos].style.display = 'block'; 
-            overlays[ringPos].innerText = '💍'; 
-        }
+        function endGame() { isOver = true; const views = document.querySelectorAll('.open-view'); const overlays = document.querySelectorAll('.emoji-overlay'); views[ringPos].style.display = 'block'; overlays[ringPos].innerText = '💍'; }
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(e => console.log(e));
+                navigator.serviceWorker.register('./sw.js').then(reg => {
+                    // إجبار التحديث إذا وجد نسخة جديدة
+                    reg.onupdatefound = () => {
+                        const installingWorker = reg.installing;
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                location.reload();
+                            }
+                        };
+                    };
+                });
             });
         }
     </script>
